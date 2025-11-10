@@ -6,8 +6,11 @@ use Livewire\Component;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Rule;
 use Livewire\WithPagination;
-use App\Models\Colaborador; // Assumindo que você tem este Model
-use App\Models\Unidade;     // Precisamos disso para o dropdown
+use App\Models\Colaborador; 
+use App\Models\Unidade;   
+use App\Models\Bandeira;
+use App\Exports\ColaboradorExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class Index extends Component
 {
@@ -25,6 +28,12 @@ class Index extends Component
 
     #[Rule('required|exists:unidades,id')]
     public $unidade_id = '';
+
+    
+    // 👇 AS PROPRIEDADES PÚBLICAS DEVEM ESTAR AQUI 👇
+    public $filter_unidade_id = '';
+    public $filter_bandeira_id = '';
+    public $filter_cpf = '';
 
     // Propriedades de controle
     public $search = '';
@@ -83,20 +92,57 @@ class Index extends Component
     
     public function render()
     {
-        // 1. Consulta os Colaboradores, carregando o relacionamento Unidade
-        $colaboradores = Colaborador::with('unidade')
-            ->where('nome', 'like', '%' . $this->search . '%')
-            ->orWhere('email', 'like', '%' . $this->search . '%')
-            ->orderBy('nome')
-            ->paginate(10);
+        // 1. Inicia a consulta base para Colaboradores
+        $query = Colaborador::query()->with(['unidade.bandeira']);
 
-        // 2. Consulta todas as Unidades (para o Dropdown no Modal)
+        // 2. Aplica os filtros dinamicamente
+        if (!empty($this->search)) {
+            $query->where(function ($q) {
+                $q->where('nome', 'like', '%' . $this->search . '%')
+                  ->orWhere('email', 'like', '%' . $this->search . '%');
+            });
+        }
+        if (!empty($this->filter_cpf)) {
+            $query->where('cpf', 'like', '%' . $this->filter_cpf . '%');
+        }
+        if (!empty($this->filter_unidade_id)) {
+            $query->where('unidade_id', $this->filter_unidade_id);
+        }
+        if (!empty($this->filter_bandeira_id)) {
+            $query->whereHas('unidade', function ($q) {
+                $q->where('bandeira_id', $this->filter_bandeira_id);
+            });
+        }
+
+        $colaboradores = $query->orderBy('nome')->paginate(10);
+
+        // 3. Consulta dados para os filtros e modal
         $unidades = Unidade::orderBy('nome_fantasia')->get(['id', 'nome_fantasia']);
+        $bandeiras = Bandeira::orderBy('nome')->get(['id', 'nome']);
             
-        // 3. RETORNA a view, passando os Colaboradores e as Unidades
+        // 4. Retorna a view com todos os dados necessários
         return view('livewire.colaborador.index', [
             'colaboradores' => $colaboradores,
-            'unidades' => $unidades 
+            'unidades' => $unidades,
+            'bandeiras' => $bandeiras,
         ])->layout('layouts.app'); 
+    }
+
+    /**
+     * Gera e baixa o arquivo Excel com os colaboradores filtrados.
+     */
+    public function exportExcel()
+    {
+        $filters = [
+            'search' => $this->search,
+            'unidade_id' => $this->filter_unidade_id,
+            'bandeira_id' => $this->filter_bandeira_id,
+            'cpf' => $this->filter_cpf,
+        ];
+
+
+        $fileName = 'colaboradores_' . now()->format('Ymd_His') . '.xlsx';
+
+        return Excel::download(new ColaboradorExport($filters), $fileName);
     }
 }
