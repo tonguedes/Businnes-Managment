@@ -45,18 +45,18 @@ Route::post('/token', function (Request $request) {
 Route::middleware('auth:sanctum')->group(function () {
 
     // CRUD de Grupos Econômicos
-    Route::apiResource('grupos', GrupoEconomicoController::class);
+    Route::apiResource('grupos', GrupoEconomicoController::class)->names('api.grupos');
 
     // CRUD de Bandeiras
     // Rota aninhada (Nested) para acessar bandeiras de um grupo específico: /api/grupos/{grupo}/bandeiras
     // Embora apiResource não suporte aninhamento nativo, podemos usar o prefixo para simular:
-    Route::apiResource('bandeiras', BandeiraController::class);
+    Route::apiResource('bandeiras', BandeiraController::class)->names('api.bandeiras');
 
     // CRUD de Unidades
-    Route::apiResource('unidades', UnidadeController::class);
+    Route::apiResource('unidades', UnidadeController::class)->names('api.unidades');
 
     // CRUD de Colaboradores
-    Route::apiResource('colaboradores', ColaboradorController::class);
+    Route::apiResource('colaboradores', ColaboradorController::class)->names('api.colaboradores');
 
     // Rota básica para retornar o usuário logado (teste de autenticação)
     Route::get('/user', function (Request $request) {

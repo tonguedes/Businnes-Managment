@@ -7,33 +7,35 @@
 
         <title>{{ config('app.name', 'Laravel') }}</title>
 
-        <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-        <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @livewireStyles
-
-        
     </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
-            <livewire:layout.navigation />
+    
+    <body class="font-sans antialiased bg-gray-100">
+        
+        <div class="flex min-h-screen">
+            
 
-            <!-- Page Heading -->
-            @if (isset($header))
-                <header class="bg-white shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
-                </header>
-            @endif
+            <div class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">
+                
+                @if (isset($header))
+                    <header class="bg-white shadow border-b border-gray-200">
+                        <div class="flex items-center justify-between max-w-full mx-auto py-4 px-8">
+                             <h1 class="text-xl font-semibold text-gray-800">{{ $header }}</h1>
+                            <div class="text-sm text-gray-500">
+                                Olá, {{ Auth::user()->name ?? 'Usuário' }}
+                            </div>
+                        </div>
+                    </header>
+                @endif
 
-            <!-- Page Content -->
-            <main>
-                {{ $slot }}
-            </main>
+                <main>
+                    {{ $slot }}
+                </main>
+            </div>
         </div>
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
         @livewireScripts

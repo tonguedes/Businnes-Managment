@@ -6,26 +6,31 @@ use App\Livewire\Unidade\Index as UnidadeIndex;
 use App\Livewire\Colaborador\Index as ColaboradorIndex;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'welcome');
+// 1. Rota Raiz: Redireciona o acesso principal para a área de grupos.
+Route::get('/', function () {
+    // Se o usuário estiver logado, redireciona para grupos.
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
+    // Caso contrário, redireciona para a tela de login (o middleware 'auth' fará isso).
+    return redirect()->route('login');
+});
 
-Route::view('dashboard', 'dashboard')
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
+// Rotas Protegidas (Exige Login)
+// Usamos o middleware 'auth' para proteger todo o bloco.
+Route::middleware(['auth'])->group(function () {
+    
+    // Rotas de Gestão (Agora todas protegidas)
+    Route::get('/grupos', GrupoEconomicoIndex::class)->name('grupos.index');
+    Route::get('/bandeiras', BandeiraIndex::class)->name('bandeiras.index');
+    Route::get('/unidades', UnidadeIndex::class)->name('unidades.index');
+    Route::get('/colaboradores', ColaboradorIndex::class)->name('colaboradores.index');
 
-Route::view('profile', 'profile')
-    ->middleware(['auth'])
-    ->name('profile');
-
-// Adicione esta rota para carregar a sua página de grupos
-Route::get('grupos', GrupoEconomicoIndex::class)
-    ->middleware(['auth'])->name('grupos');
-
-
-Route::get('/bandeiras', BandeiraIndex::class)->name('bandeiras');
-Route::get('/unidades', UnidadeIndex::class)->name('unidades');
-Route::get('/colaboradores', ColaboradorIndex::class)->name('colaboradores');
+    // Rotas de Usuário (Mantidas do Breeze)
+    Route::view('dashboard', 'dashboard')->name('dashboard');
+    Route::view('profile', 'profile')->name('profile');
+});
 
 
-
-
-require __DIR__.'/auth.php';
+// As rotas de login/logout/register (definidas pelo Breeze) são carregadas aqui.
+require __DIR__.'/auth.php'; 

@@ -5,10 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-
-class Colaborador extends Model
+use OwenIt\Auditing\Contracts\Auditable;
+ 
+class Colaborador extends Model implements Auditable
 {
     use HasFactory;
+    use \OwenIt\Auditing\Auditable;
 
     protected $fillable = ['nome', 'email', 'cpf', 'unidade_id'];
 
@@ -18,5 +20,4 @@ class Colaborador extends Model
     public function unidade(): BelongsTo
     {
         return $this->belongsTo(Unidade::class);
-    }
-}
+    }}

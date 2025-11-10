@@ -4,19 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class GrupoEconomico extends Model
+class GrupoEconomico extends Model implements Auditable
 {
     use HasFactory;
+    use \OwenIt\Auditing\Auditable;
 
-    protected $fillable = ['nome'];
-
-    /**
-     * Um Grupo possui muitas Bandeiras.
-     */
-    public function bandeiras(): HasMany
-    {
-        return $this->hasMany(Bandeira::class);
-    }
+    protected $fillable = [
+        'nome',
+    ];
 }
