@@ -25,6 +25,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/bandeiras', BandeiraIndex::class)->name('bandeiras.index');
     Route::get('/unidades', UnidadeIndex::class)->name('unidades.index');
     Route::get('/colaboradores', ColaboradorIndex::class)->name('colaboradores.index');
+  
 
     // Rotas de Usuário (Mantidas do Breeze)
     Route::view('dashboard', 'dashboard')->name('dashboard');
@@ -32,5 +33,6 @@ Route::middleware(['auth'])->group(function () {
 });
 
 
-// As rotas de login/logout/register (definidas pelo Breeze) são carregadas aqui.
+
+
 require __DIR__.'/auth.php'; 
